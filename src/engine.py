@@ -51,6 +51,7 @@ COLOR_DEAD = '\033[38;5;236m'
 COLOR_MUTED = '\033[38;5;239m'
 COLOR_PLAY = '\033[38;5;46m'
 COLOR_PAUSE = '\033[38;5;196m'
+COLOR_WHITE = '\033[38;5;15m'
 RESET = '\033[0m'
 
 CHAR_ALIVE = '██'
@@ -78,7 +79,7 @@ def get_heatmap_color(grid, r, c):
     else:
         return '\033[38;5;196m'
 
-def print_grid(grid, generation, seed_type, paused, first_frame=False):
+def print_grid(grid, generation, seed_type, paused, heatmap_mode, first_frame=False):
     clear_screen(first_frame)
     
     term_cols, term_lines = shutil.get_terminal_size((80, 24))
@@ -113,7 +114,10 @@ def print_grid(grid, generation, seed_type, paused, first_frame=False):
         row_str = f"{pad_left_str}{COLOR_BORDER}│{RESET}"
         for c, cell in enumerate(row):
             if cell == 1:
-                color = get_heatmap_color(grid, r, c)
+                if heatmap_mode:
+                    color = get_heatmap_color(grid, r, c)
+                else:
+                    color = COLOR_WHITE
                 row_str += f"{color}{CHAR_ALIVE}{RESET}"
             else:
                 row_str += f"{COLOR_DEAD}{CHAR_DEAD}{RESET}"
@@ -164,6 +168,13 @@ def main():
     ROWS = 20
     COLS = 35
     TICK_SPEED = 0.1
+    choice = input("heatmap or normal? (h/n?)")
+    if choice == "h":
+        heatmap_mode=True
+    else:
+        heatmap_mode=False
+
+
     #---------------------------- 
     SEED_TYPE = 'random' #glider/blinker/pulsar (default: random)
     #---------------------------- 
@@ -191,7 +202,7 @@ def main():
             elif key == 'q' or key == '\x03':
                 break
 
-            print_grid(grid, generation, SEED_TYPE, paused, first_frame)
+            print_grid(grid, generation, SEED_TYPE, paused, heatmap_mode, first_frame)
             first_frame = False
             
             now = time.time()
